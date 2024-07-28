@@ -79,20 +79,41 @@ export default class Tank {
     }
     
 
-    move() {
+    move(enemyTanks) {
         const radians = this.angle * Math.PI / 180;
+        let newX = this.x;
+        let newY = this.y;
     
         if (this.movingForward) {
-            this.x += this.speed * Math.cos(radians);
-            this.y += this.speed * Math.sin(radians);
+            newX += this.speed * Math.cos(radians);
+            newY += this.speed * Math.sin(radians);
         }
         if (this.movingBackward) {
-            this.x -= this.speed * Math.cos(radians);
-            this.y -= this.speed * Math.sin(radians);
+            newX -= this.speed * Math.cos(radians);
+            newY -= this.speed * Math.sin(radians);
         }
 
-        this.x = Math.max(0, Math.min(this.x, this.ctx.canvas.width - this.width));
-        this.y = Math.max(0, Math.min(this.y, this.ctx.canvas.height - this.height));
+        // Check for collisions with enemy tanks
+        if (!this.checkCollisions(newX, newY, enemyTanks)) {
+            this.x = Math.max(0, Math.min(newX, this.ctx.canvas.width - this.width));
+            this.y = Math.max(0, Math.min(newY, this.ctx.canvas.height - this.height));
+        }
+    }
+
+    // Method to check if the tank will collide with any enemy tanks
+    checkCollisions(newX, newY, enemyTanks) {
+        for (let enemy of enemyTanks) {
+            if (this !== enemy) {
+                const dx = newX - enemy.x;
+                const dy = newY - enemy.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDistance = (this.width / 2 + enemy.width / 2);
+                if (distance < minDistance) {
+                    return true; // Collision detected
+                }
+            }
+        }
+        return false; // No collision
     }
 
     rotateLeft() {
@@ -142,5 +163,10 @@ export default class Tank {
             y: this.y + this.height / 2, // Starting y position (adjust based on cannon's actual position)
             direction: direction
         };
+    }
+    BulletHit() {
+        // Handle logic when the tank is hit by a bullet
+        console.log("Tank was hit!");
+        // Example: reduce health or trigger an explosion effect
     }
 }

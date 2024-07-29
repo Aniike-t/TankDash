@@ -33,6 +33,9 @@ export default class EnemyTank {
         this.LowerCoolDownLimit = 6000;
         this.fireCooldown = randomNumberBetween(this.UpperCoolDownLimit,this.LowerCoolDownLimit);
 
+        this.heart = 1;
+        this.destroyed = false;
+
     }
 
     UpdateUpperAndLowerCoolDown(UpperCoolDownLimit,LowerCoolDownLimit){
@@ -158,8 +161,10 @@ export default class EnemyTank {
         this.ctx.restore();
     }
     BulletHit() {
-        // Handle logic when the tank is hit by a bullet
-        console.log("Enemy Tank was hit!");
-        // Example: reduce health or trigger an explosion effect
+        this.heart = this.heart -1;
+        if(this.heart < 1){
+            this.destroyed = true;
+        }
+        console.log("Enemy Tank was hit! "+this.destroyed+"  lives : "+structuredClone(this.heart));
     }
 }

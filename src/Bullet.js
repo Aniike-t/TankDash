@@ -11,7 +11,7 @@ export default class Bullet {
         this.bulletImage = new Image();
         this.bulletImage.src = '../assets/bullet.png';
         this.creationTime = Date.now(); // Track when the bullet was created
-        this.lifespan = 500; // Bullet lifespan in milliseconds (e.g., 500ms = 0.5s)
+        this.lifespan = 250; // Bullet lifespan in milliseconds (e.g., 500ms = 0.5s)
     }
 
     draw() {
@@ -53,7 +53,7 @@ export default class Bullet {
             return false; // Skip collision check if the bullet is too young
         }
     
-        const padding = 5; // Adjust this value to increase or decrease the bounding box size
+        const padding = 10; // Adjust this value to increase or decrease the bounding box size
     
         const bulletBounds = {
             left: this.x - this.width / 2 - padding,

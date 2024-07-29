@@ -3,6 +3,7 @@ import Bullet from './src/Bullet.js';
 import HeartsDisplay from './src/UI/heartsdisplay.js';
 import EnemyTank from './src/EnemyTank.js';
 import Overheat from './src/UI/Overheat.js';
+import randomNumberBetween from './src/utils/random.js'
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -38,7 +39,7 @@ const tank = new Tank(
 
 //UI Elements
 const heartsDisplay = new HeartsDisplay(ctx, 3, 'assets/heart.png', 20, 20, 30, 30);
-const overheat = new Overheat(ctx, canvas.width - 60, canvas.height - 150, 30, 100);
+const overheat = new Overheat(ctx, canvas.width - 60, canvas.height - 150, 30, 100, 0.2);
 
 
 let bullets = [];
@@ -128,6 +129,29 @@ function keyUpHandler(e) {
     }
 }
 
+//New Enemies Spawning
+var UpperTimeLimitForEnemySpawn = 6000;
+var UpperTimeLimitForEnemySpawn = 4000;
+var TimeLimitForEnemySpawn = randomNumberBetween(UpperTimeLimitForEnemySpawn,UpperTimeLimitForEnemySpawn);
+var EnemyCountFlag = false;
+function spawnEnemiesIfNeeded() {
+    if(EnemyCountFlag){
+        const maxEnemies = 6;
+        const currentEnemyCount = enemies.length;
+    
+        if (currentEnemyCount < maxEnemies) {
+            const enemiesToSpawn = maxEnemies - currentEnemyCount;
+            const newEnemies = spawnEnemies(enemiesToSpawn, ctx, tank);
+            enemies = enemies.concat(newEnemies); 
+        }
+        TimeLimitForEnemySpawn = randomNumberBetween(UpperTimeLimitForEnemySpawn,UpperTimeLimitForEnemySpawn);
+        EnemyCountFlag = false;
+    }
+}
+
+setInterval(spawnEnemiesIfNeeded, TimeLimitForEnemySpawn); 
+
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     tank.draw();
@@ -135,7 +159,10 @@ function draw() {
     
 
 
-
+    enemies = enemies.filter(enemy => !enemy.destroyed);
+    if(enemies.length < 5){
+        EnemyCountFlag = true;
+    }
     // Draw and update enemies
     enemies.forEach(enemy => {
         enemy.draw();
@@ -176,7 +203,7 @@ function draw() {
             }
         });
     });
-
+   
 
     // Draw and update bullets
     // Draw and update bullets

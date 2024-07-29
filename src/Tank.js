@@ -1,6 +1,6 @@
 // tank.js
 export default class Tank {
-    constructor(x, y, width, height, speed, ctx, imageSrc, cannon1Src) {
+    constructor(x, y, width, height, speed, ctx, imageSrc, cannon1Src, hearts) {
         // Existing properties...
         this.x = x;
         this.y = y;
@@ -23,6 +23,8 @@ export default class Tank {
         this.recoilSpeed = 5;
         this.recoilProgress = 0;
         this.isRecoiling = false;
+
+        this.heart = hearts;
     }
 
     draw() {
@@ -159,14 +161,13 @@ export default class Tank {
             y: Math.sin(radians)
         };
         return {
-            x: this.x + this.width / 2, // Starting x position (adjust based on cannon's actual position)
-            y: this.y + this.height / 2, // Starting y position (adjust based on cannon's actual position)
+            x: this.x + this.width / 2, 
+            y: this.y + this.height / 2, 
             direction: direction
         };
     }
     BulletHit() {
-        // Handle logic when the tank is hit by a bullet
+        this.heart = this.heart -1;
         console.log("Tank was hit!");
-        // Example: reduce health or trigger an explosion effect
     }
 }

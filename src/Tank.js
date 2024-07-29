@@ -25,6 +25,10 @@ export default class Tank {
         this.isRecoiling = false;
 
         this.heart = hearts;
+
+        // Shaking parameters
+        this.shakeMagnitude = 0.60; 
+        this.shakeFrequency = 0.025; 
     }
 
     draw() {
@@ -46,7 +50,6 @@ export default class Tank {
             this.height, 
             shadowRadius // Rounded corner radius
         );
-        
         this.ctx.fill();
         this.ctx.closePath();
     
@@ -57,16 +60,20 @@ export default class Tank {
         this.ctx.msImageSmoothingEnabled = false;
         this.ctx.imageSmoothingEnabled = false;
     
-        // Draw the tank body
-        this.ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        // Calculate shake offsets
+        const shakeX = Math.sin(Date.now() * this.shakeFrequency) * this.shakeMagnitude;
+        const shakeY = Math.cos(Date.now() * this.shakeFrequency) * this.shakeMagnitude;
+
+        // Apply shake offsets and draw the tank
+        this.ctx.translate(this.x + this.width / 2 + shakeX, this.y + this.height / 2 + shakeY);
         this.ctx.rotate(this.angle * Math.PI / 180);
         this.ctx.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
-    
+
         let recoilOffset = 0;
         if (this.isRecoiling) {
             recoilOffset = Math.sin((this.recoilProgress / 100) * Math.PI) * this.recoilDistance;
             this.recoilProgress += this.recoilSpeed;
-    
+
             if (this.recoilProgress >= 100) {
                 this.isRecoiling = false;
                 this.recoilProgress = 0;
@@ -169,5 +176,8 @@ export default class Tank {
     BulletHit() {
         this.heart = this.heart -1;
         console.log("Tank was hit!");
+    }
+    ReturnLifeValue(){
+        return this.heart;
     }
 }

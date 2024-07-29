@@ -22,6 +22,14 @@ export default class Overheat {
             this.shakeTime = 10; // Duration of the shake
         }
     }
+    ReturnCurrentValueOfOverheat(){
+        if(this.currentLevel < 1){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
 
     coolDown() {
         if (this.currentLevel > 0) {
@@ -34,7 +42,7 @@ export default class Overheat {
 
     draw() {
         this.ctx.save();
-    
+        
         // Calculate shake offset if shaking
         let shakeOffsetX = 0;
         let shakeOffsetY = 0;
@@ -46,25 +54,54 @@ export default class Overheat {
                 this.isShaking = false;
             }
         }
-    
+        
         // Position for the thermometer
-        const x = this.x + shakeOffsetX;
-        const y = this.y + shakeOffsetY;
-    
+        const baseX = this.x + shakeOffsetX;
+        const baseY = this.y + shakeOffsetY;
+        
         // Draw the thermometer base
         this.ctx.fillStyle = '#ddd';
-        this.ctx.fillRect(x, y, this.width, this.height);
-    
+        this.ctx.fillRect(baseX, baseY, this.width, this.height);
+        
         // Draw the overheat level
         this.ctx.fillStyle = this.isShaking ? 'red' : '#f00'; // Change color if shaking
-        this.ctx.fillRect(x, y + (1 - this.currentLevel) * this.height, this.width, this.currentLevel * this.height);
-    
+        this.ctx.fillRect(baseX, baseY + (1 - this.currentLevel) * this.height, this.width, this.currentLevel * this.height);
+        
         // Draw the border around the thermometer
         this.ctx.lineWidth = 2; // Border thickness
         this.ctx.strokeStyle = '#000'; // Border color
-        this.ctx.strokeRect(x, y, this.width, this.height);
+        this.ctx.strokeRect(baseX, baseY, this.width, this.height);
+        
+        // Draw "Overheat" text in Comic Sans if shaking
+        if (this.isShaking) {
+            // Random position around the thermometer
+            const textX = baseX + (Math.random() * 40 - 20); // Random offset within 40 pixels
+            const textY = baseY + (Math.random() * 40 - 20); // Random offset within 40 pixels
     
+            // Randomly select a color from yellow, red, and black
+            const colors = ['yellow', 'red', 'black'];
+            const textColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            this.ctx.font = 'bold 20px Comic Sans MS'; // Font size and type
+            this.ctx.textAlign = 'center'; // Center the text
+            this.ctx.textBaseline = 'middle'; // Vertically center the text
+    
+            // Draw the text with a black stroke
+            this.ctx.strokeStyle = 'black'; // Stroke color
+            this.ctx.lineWidth = 2; // Stroke thickness
+            this.ctx.strokeText('Overheat', textX, textY); // Draw stroke
+    
+            this.ctx.fillStyle = textColor; // Set the random text color
+            this.ctx.fillText('Overheat', textX, textY); // Draw text
+            
+        }
+        
         this.ctx.restore();
     }
+    
+    reset() {
+        this.currentValue = 0; // Reset the overheat value to zero
+    }
+    
     
 }

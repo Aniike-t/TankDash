@@ -39,4 +39,7 @@ export default class HeartsDisplay {
     incrementLife() {
         this.setLives(this.lives + 1);
     }
+    setHeartValue(value){
+        this.lives = value;
+    }
 }

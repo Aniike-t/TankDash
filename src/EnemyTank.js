@@ -36,6 +36,19 @@ export default class EnemyTank {
         this.heart = 1;
         this.destroyed = false;
 
+        this.opacity = 0; // Initial opacity for fade-in effect
+        this.fadeInDuration = 2000; // Duration of the fade-in in milliseconds
+        this.fadeInStart = Date.now(); // Start time of the fade-in
+
+        this.shakeAmplitude = 0.55; // Maximum distance of shake
+        this.shakeFrequency = 0.025;
+
+    }
+
+    fadeIn() {
+        const elapsedTime = Date.now() - this.fadeInStart;
+        const fraction = elapsedTime / this.fadeInDuration;
+        this.opacity = Math.min(fraction, 1); // Ensure opacity doesn't exceed 1
     }
 
     UpdateUpperAndLowerCoolDown(UpperCoolDownLimit,LowerCoolDownLimit){
@@ -50,6 +63,12 @@ export default class EnemyTank {
     }
 
     move() {
+        // Prevent movement during the fade-in duration
+        const elapsedTime = Date.now() - this.fadeInStart;
+        if (elapsedTime < this.fadeInDuration) {
+            return; // Do not move until the fade-in is complete
+        }
+
         const deltaX = this.targetX - this.x;
         const deltaY = this.targetY - this.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -65,6 +84,7 @@ export default class EnemyTank {
             // Align the cannon angle with the tank's movement direction
             this.cannonAngle = this.angle; // This aligns the cannon with the body
         }
+
     }
     
 
@@ -78,6 +98,7 @@ export default class EnemyTank {
     }
 
     fire(playerTank) {
+
         this.calculateFireAngle(playerTank);
         const radians = this.cannonAngle * Math.PI / 180;
         
@@ -126,11 +147,16 @@ export default class EnemyTank {
         this.setNewTarget();
     }
 
+
     draw() {
+        this.fadeIn(); // Apply the fade-in effect
+
         this.ctx.save();
-    
+
+        // Apply opacity for fading effect
+        this.ctx.globalAlpha = this.opacity;
+
         // Shadow properties
-        this.ctx.globalAlpha = 0.5;
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
         this.ctx.beginPath();
         this.ctx.roundRect(
@@ -142,22 +168,37 @@ export default class EnemyTank {
         );
         this.ctx.fill();
         this.ctx.closePath();
-    
+
         // Reset alpha and smoothing
-        this.ctx.globalAlpha = 1.0;
+        this.ctx.globalAlpha = this.opacity;
         this.ctx.imageSmoothingEnabled = false;
-    
-        // Translate to the tank's center and rotate
-        this.ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+
+        // Calculate shake offsets
+        const shakeX = Math.sin(Date.now() * this.shakeFrequency) * this.shakeAmplitude;
+        const shakeY = Math.cos(Date.now() * this.shakeFrequency) * this.shakeAmplitude;
+
+        // Apply shake offsets and draw the tank
+        this.ctx.translate(this.x + this.width / 2 + shakeX, this.y + this.height / 2 + shakeY);
         this.ctx.rotate(this.angle * Math.PI / 180);
-        
+
         // Draw the tank body
         this.ctx.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
-        
+
+        let recoilOffset = 0;
+        if (this.isRecoiling) {
+            recoilOffset = Math.sin((this.recoilProgress / 100) * Math.PI) * this.recoilDistance;
+            this.recoilProgress += this.recoilSpeed;
+
+            if (this.recoilProgress >= 100) {
+                this.isRecoiling = false;
+                this.recoilProgress = 0;
+            }
+        }
+
         // Draw the cannon on top
         this.ctx.rotate((this.cannonAngle - this.angle) * Math.PI / 180);
-        this.ctx.drawImage(this.cannon, -this.width / 2, -this.height / 2, this.width, this.height);
-    
+        this.ctx.drawImage(this.cannon, -this.width / 2 + recoilOffset + 20, -this.height / 2 + 5, this.width, this.height - 10);
+
         this.ctx.restore();
     }
     BulletHit() {

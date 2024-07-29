@@ -6,6 +6,7 @@ import Overheat from './src/UI/Overheat.js';
 import randomNumberBetween from './src/utils/random.js'
 import Explosion from './src/Explosion.js';
 import GameOver from './src/UI/gameOver.js';
+import ScoreDisplay from './src/UI/ScoreDisplay.js'; 
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -207,13 +208,48 @@ function spawnEnemiesIfNeeded() {
 
 setInterval(spawnEnemiesIfNeeded, TimeLimitForEnemySpawn); 
 
+//Invertcolors
+let invertColors = false;
+let inversionDuration = 0;
+let inversionCooldown = 0;
 
+function startInversion() {
+    if (inversionCooldown <= 0) {
+        invertColors = true;
+        inversionDuration = Math.random() * 5000 + 5000; // Random duration between 5-10 seconds
+        inversionCooldown = Math.random() * 15000 + 5000; // Cool-down period between 5-15 seconds
+    }
+}
+
+function updateInversion() {
+    if (invertColors) {
+        inversionDuration -= 16.67; // Approximately 1 frame duration at 60fps
+        if (inversionDuration <= 0) {
+            invertColors = false;
+        }
+    } else {
+        inversionCooldown -= 16.67;
+        if (inversionCooldown <= 0) {
+            startInversion();
+        }
+    }
+}
+
+const scoreDisplay = new ScoreDisplay(ctx, 20, canvas.height - 40, 'assets/coin.png');
 
 // Call the `startGame` function to start the game loop
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     tank.draw();
     tank.move(enemies);
+
+    // Apply color inversion if active
+    if (invertColors) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'difference';
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
     enemies = enemies.filter(enemy => !enemy.destroyed);
     if(enemies.length < 5){
@@ -294,8 +330,16 @@ function draw() {
     overheat.coolDown();
     overheat.draw();
     heartsDisplay.draw();
+    scoreDisplay.draw(); // Draw the score display
     gameOver.draw(); // Ensure this is called to draw the game over screen if needed
+    if (invertColors) {
+        ctx.restore();
+    }
+
+    // Update inversion state
+    updateInversion();
     requestAnimationFrame(draw);
+
 }
 
 function endGame() {

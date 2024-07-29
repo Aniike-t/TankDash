@@ -1,13 +1,11 @@
 export default class GameOver {
-    constructor(ctx, canvas, startGame, showHelp, openShop) {
+    constructor(ctx, canvas, startGame) {
         this.ctx = ctx;
         this.canvas = canvas;
         this.width = canvas.width;
         this.height = canvas.height;
         this.isVisible = false;
         this.startGame = startGame; // Function reference
-        this.showHelp = showHelp;   // Function reference for help
-        this.openShop = openShop;   // Function reference for shop
 
         // Set up the restart button
         this.restartButton = document.createElement('button');
@@ -88,17 +86,25 @@ export default class GameOver {
         });
 
         this.helpButton.addEventListener('click', () => {
-            this.showHelp(); // Call the help function reference
+            this.showHelp(); // Show help information
         });
 
         this.shopButton.addEventListener('click', () => {
-            this.openShop(); // Call the shop function reference
+            this.openShop(); // Toggle shop UI visibility
         });
     }
 
     changeTankSkin(skin) {
         // Notify the main script to change the tank image
         window.dispatchEvent(new CustomEvent('changeTankSkin', { detail: skin }));
+    }
+
+    showHelp() {
+        alert('Help: Use WASD to move, Q and E to move Cannon, Space to fire.'); // Display help information
+    }
+
+    openShop() {
+        this.shopUI.style.display = this.shopUI.style.display === 'none' ? 'block' : 'none'; // Toggle shop UI
     }
 
     draw() {
@@ -124,7 +130,7 @@ export default class GameOver {
         this.restartButton.style.display = 'block'; // Show the button
         this.helpButton.style.display = 'block';    // Show the button
         this.shopButton.style.display = 'block';    // Show the button
-        this.shopUI.style.display = 'none';          // Hide the shop UI by default
+        this.shopUI.style.display = 'none';         // Hide the shop UI by default
     }
 
     hide() {
@@ -132,6 +138,6 @@ export default class GameOver {
         this.restartButton.style.display = 'none'; // Hide the button
         this.helpButton.style.display = 'none';    // Hide the button
         this.shopButton.style.display = 'none';    // Hide the button
-        this.shopUI.style.display = 'none';         // Hide the shop UI
+        this.shopUI.style.display = 'none';        // Hide the shop UI
     }
 }

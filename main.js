@@ -15,6 +15,19 @@ const ctx = canvas.getContext('2d');
 canvas.width = 800; // Adjust based on your requirements
 canvas.height = 600; // Adjust based on your requirements
 
+
+const bulletImage = new Image();
+bulletImage.src = './assets/bullet.png';
+bulletImage.onload = () => {
+    console.log('Bullet image loaded');
+    window.bulletImageLoaded = true;
+};
+const boomImage = new Image();
+boomImage.src = './assets/boom.png';
+boomImage.onload = () => {
+    console.log('Bullet image loaded');
+    window.boomImageLoaded = true;
+};
 // Disable image smoothing to keep image quality
 ctx.mozImageSmoothingEnabled = false;
 ctx.webkitImageSmoothingEnabled = false;
@@ -106,16 +119,19 @@ function keyDownHandler(e) {
                 tank.fire();
                 const fireInfo = tank.getFireInfo();
                 console.log(`Firing from x: ${fireInfo.x}, y: ${fireInfo.y}, angle: ${fireInfo.direction}`);
-                bullets.push(new Bullet(
-                    fireInfo.x, 
-                    fireInfo.y, 
-                    bulletWidth, 
-                    bulletHeight, 
-                    bulletSpeed, 
-                    fireInfo.direction,
-                    ctx,
-                    'assets/bullet.png' // Path to the bullet image
-                ));
+                if (window.bulletImageLoaded) {
+                    bullets.push(new Bullet(
+                        fireInfo.x, 
+                        fireInfo.y, 
+                        bulletWidth, 
+                        bulletHeight, 
+                        bulletSpeed, 
+                        fireInfo.direction,
+                        ctx,
+                        bulletImage, // Use the preloaded image
+                        boomImage    
+                    ));
+                }
                 break;
             }
     }
@@ -290,7 +306,8 @@ function draw() {
                     bulletSpeed, 
                     enemyFireInfo.direction,
                     ctx,
-                    'assets/bullet.png' // Path to the enemy bullet image
+                    bulletImage, // Path to the enemy bullet image
+                    boomImage
                 ));
                 enemy.lastFireTime = Date.now(); // Reset the fire time
             }

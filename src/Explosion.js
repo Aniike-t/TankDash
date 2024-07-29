@@ -3,8 +3,7 @@ export default class Explosion {
         this.x = x;
         this.y = y;
         this.ctx = ctx;
-        this.image = new Image();
-        this.image.src = imageSrc;
+        this.image = imageSrc
         this.opacity = 1;
         this.fadeOutDuration = duration;
         this.startTime = Date.now();

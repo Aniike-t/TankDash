@@ -2,7 +2,7 @@
 import Explosion from './Explosion.js';
 
 export default class Bullet {
-    constructor(x, y, width, height, speed, direction, ctx, bulletImageSrc) {
+    constructor(x, y, width, height, speed, direction, ctx, bulletImage, boomImage) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -10,25 +10,30 @@ export default class Bullet {
         this.speed = speed;
         this.direction = direction;
         this.ctx = ctx;
-        this.bulletImage = new Image();
-        this.bulletImage.src = '../assets/bullet.png';
+        this.bulletImage = bulletImage;
         this.creationTime = Date.now(); // Track when the bullet was created
         this.lifespan = 250; // Bullet lifespan in milliseconds (e.g., 500ms = 0.5s)
+        this.boomImage = boomImage;
     }
 
     draw() {
-        this.ctx.save();
-        this.ctx.translate(this.x, this.y);
-        const angle = Math.atan2(this.direction.y, this.direction.x);
-        this.ctx.rotate(angle);
-        this.ctx.drawImage(
-            this.bulletImage,
-            -this.width / 2,
-            -this.height / 2,
-            this.width,
-            this.height
-        );
-        this.ctx.restore();
+        if (this.bulletImage && this.bulletImage.complete) {
+            this.ctx.save();
+            this.ctx.translate(this.x, this.y);
+            const angle = Math.atan2(this.direction.y, this.direction.x);
+            this.ctx.rotate(angle);
+            this.ctx.drawImage(
+                this.bulletImage,
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height
+            );
+            this.ctx.restore();
+        } else {
+            console.error("Bullet image is not loaded or invalid");
+        }
+ 
     }
 
     move() {
@@ -80,7 +85,7 @@ export default class Bullet {
             tank.BulletHit();
             
             // Create a new explosion at the collision point
-            explosions.push(new Explosion(tank.x, tank.y, this.ctx, '../assets/boom.png'));
+            explosions.push(new Explosion(tank.x, tank.y, this.ctx, this.boomImage));
             
             return true;
         }

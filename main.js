@@ -28,6 +28,8 @@ boomImage.onload = () => {
     console.log('Bullet image loaded');
     window.boomImageLoaded = true;
 };
+
+
 // Disable image smoothing to keep image quality
 ctx.mozImageSmoothingEnabled = false;
 ctx.webkitImageSmoothingEnabled = false;
@@ -47,7 +49,7 @@ let explosions = [];
 //UI Elements
 const heartsDisplay = new HeartsDisplay(ctx, 3, 'assets/heart.png', 20, 20, 30, 30);
 const overheat = new Overheat(ctx, canvas.width - 60, canvas.height - 150, 30, 100, 0.2);
-
+const scoreDisplay = new ScoreDisplay(ctx, 20, canvas.height - 40, 'assets/coin.png');
 
 let tank = new Tank(
     canvas.width / 2 - tankWidth / 2,
@@ -223,7 +225,7 @@ function spawnEnemiesIfNeeded() {
 }
 
 setInterval(spawnEnemiesIfNeeded, TimeLimitForEnemySpawn); 
-
+setInterval(() => scoreDisplay.increment(), 2000);
 //Invertcolors
 let invertColors = false;
 let inversionDuration = 0;
@@ -251,7 +253,6 @@ function updateInversion() {
     }
 }
 
-const scoreDisplay = new ScoreDisplay(ctx, 20, canvas.height - 40, 'assets/coin.png');
 
 // Call the `startGame` function to start the game loop
 function draw() {
@@ -347,6 +348,9 @@ function draw() {
     overheat.coolDown();
     overheat.draw();
     heartsDisplay.draw();
+
+    
+
     scoreDisplay.draw(); // Draw the score display
     gameOver.draw(); // Ensure this is called to draw the game over screen if needed
     if (invertColors) {
@@ -358,6 +362,9 @@ function draw() {
     requestAnimationFrame(draw);
 
 }
+
+
+
 
 function endGame() {
     gameOver.show(); // Show the game over screen

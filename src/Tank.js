@@ -1,12 +1,11 @@
-// tank.js
 export default class Tank {
-    constructor(x, y, width, height, speed, ctx, imageSrc, cannon1Src, hearts) {
-        // Existing properties...
+    constructor(x, y, width, height, maxSpeed, ctx, imageSrc, cannon1Src, hearts) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.speed = speed;
+        this.maxSpeed = maxSpeed; // Maximum speed
+        this.currentSpeed = 0; // Current speed of the tank
         this.ctx = ctx;
         this.angle = 0; // Tank's angle in degrees
         this.cannonAngle = 0; // Cannon's angle in degrees
@@ -29,42 +28,42 @@ export default class Tank {
         // Shaking parameters
         this.shakeMagnitude = 0.60; 
         this.shakeFrequency = 0.025; 
+
+        // Acceleration and deceleration properties
+        this.acceleration = 0.025; // Increase in speed per frame
+        this.deceleration = 0.025; // Decrease in speed per frame
     }
 
     draw() {
         this.ctx.save();
-    
-        // Shadow properties
+
+        // Shadow and shake properties (same as before)
         this.ctx.globalAlpha = 0.5; // Semi-transparent shadow
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Shadow color
         const shadowOffsetX = 5; // Horizontal offset for the shadow
         const shadowOffsetY = 5; // Vertical offset for the shadow
         const shadowRadius = 10; // Radius for rounded corners of the shadow
-    
-        // Draw the rounded shadow
+
         this.ctx.beginPath();
         this.ctx.roundRect(
             this.x + shadowOffsetX, 
             this.y + shadowOffsetY, 
             this.width, 
             this.height, 
-            shadowRadius // Rounded corner radius
+            shadowRadius
         );
         this.ctx.fill();
         this.ctx.closePath();
-    
-        // Reset alpha to full opacity for drawing the tank
+
         this.ctx.globalAlpha = 1.0;
         this.ctx.mozImageSmoothingEnabled = false;
         this.ctx.webkitImageSmoothingEnabled = false;
         this.ctx.msImageSmoothingEnabled = false;
         this.ctx.imageSmoothingEnabled = false;
-    
-        // Calculate shake offsets
+
         const shakeX = Math.sin(Date.now() * this.shakeFrequency) * this.shakeMagnitude;
         const shakeY = Math.cos(Date.now() * this.shakeFrequency) * this.shakeMagnitude;
 
-        // Apply shake offsets and draw the tank
         this.ctx.translate(this.x + this.width / 2 + shakeX, this.y + this.height / 2 + shakeY);
         this.ctx.rotate(this.angle * Math.PI / 180);
         this.ctx.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height);
@@ -79,37 +78,43 @@ export default class Tank {
                 this.recoilProgress = 0;
             }
         }
-    
-        // Draw the cannon on top of the tank
+
         this.ctx.rotate((this.cannonAngle - this.angle) * Math.PI / 180);
         this.ctx.drawImage(this.cannon1, -this.width / 2 + recoilOffset + 20, -this.height / 2 + 5, this.width, this.height - 10);
-    
+
         this.ctx.restore();
     }
-    
 
     move(enemyTanks) {
         const radians = this.angle * Math.PI / 180;
         let newX = this.x;
         let newY = this.y;
-    
+
         if (this.movingForward) {
-            newX += this.speed * Math.cos(radians);
-            newY += this.speed * Math.sin(radians);
-        }
-        if (this.movingBackward) {
-            newX -= this.speed * Math.cos(radians);
-            newY -= this.speed * Math.sin(radians);
+            this.currentSpeed = Math.min(this.currentSpeed + this.acceleration, this.maxSpeed);
+        } else if (this.movingBackward) {
+            this.currentSpeed = Math.max(this.currentSpeed - this.acceleration, -this.maxSpeed);
+        } else {
+            this.applyDeceleration();
         }
 
-        // Check for collisions with enemy tanks
+        newX += this.currentSpeed * Math.cos(radians);
+        newY += this.currentSpeed * Math.sin(radians);
+
         if (!this.checkCollisions(newX, newY, enemyTanks)) {
             this.x = Math.max(0, Math.min(newX, this.ctx.canvas.width - this.width));
             this.y = Math.max(0, Math.min(newY, this.ctx.canvas.height - this.height));
         }
     }
 
-    // Method to check if the tank will collide with any enemy tanks
+    applyDeceleration() {
+        if (this.currentSpeed > 0) {
+            this.currentSpeed = Math.max(this.currentSpeed - this.deceleration, 0);
+        } else if (this.currentSpeed < 0) {
+            this.currentSpeed = Math.min(this.currentSpeed + this.deceleration, 0);
+        }
+    }
+
     checkCollisions(newX, newY, enemyTanks) {
         for (let enemy of enemyTanks) {
             if (this !== enemy) {
@@ -160,7 +165,6 @@ export default class Tank {
         }
     }
 
-    // Method to get the fire direction of the tank's cannon
     getFireInfo() {
         const radians = this.cannonAngle * Math.PI / 180;
         const direction = {
@@ -173,11 +177,13 @@ export default class Tank {
             direction: direction
         };
     }
+
     BulletHit() {
-        this.heart = this.heart -1;
+        this.heart = this.heart - 1;
         console.log("Tank was hit!");
     }
-    ReturnLifeValue(){
+
+    ReturnLifeValue() {
         return this.heart;
     }
 }

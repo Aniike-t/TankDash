@@ -2,7 +2,7 @@
 import Explosion from './Explosion.js';
 
 export default class Bullet {
-    constructor(x, y, width, height, speed, direction, ctx, bulletImage, boomImage) {
+    constructor(x, y, width, height, speed, direction, ctx, bulletImage, boomImage, AudioManager) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -12,8 +12,9 @@ export default class Bullet {
         this.ctx = ctx;
         this.bulletImage = bulletImage;
         this.creationTime = Date.now(); // Track when the bullet was created
-        this.lifespan = 250; // Bullet lifespan in milliseconds (e.g., 500ms = 0.5s)
+        this.lifespan = 250; // Bullet lifespan in milliseconds (e.g., 250ms = 0.25s)
         this.boomImage = boomImage;
+        this.AudioManager = AudioManager;
     }
 
     draw() {
@@ -82,6 +83,7 @@ export default class Bullet {
             bulletBounds.top < tankBounds.bottom &&
             bulletBounds.bottom > tankBounds.top
         ) {
+            this.AudioManager.playAudio('explosion');
             tank.BulletHit();
             
             // Create a new explosion at the collision point

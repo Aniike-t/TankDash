@@ -1,5 +1,5 @@
 export default class Tank {
-    constructor(x, y, width, height, maxSpeed, ctx, imageSrc, cannon1Src, hearts) {
+    constructor(x, y, width, height, maxSpeed, ctx, imageSrc, cannon1Src, hearts, AudioManager) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -32,6 +32,9 @@ export default class Tank {
         // Acceleration and deceleration properties
         this.acceleration = 0.025; // Increase in speed per frame
         this.deceleration = 0.025; // Decrease in speed per frame
+
+        //For Audio
+        this.AudioManager = AudioManager;
     }
 
     draw() {
@@ -159,6 +162,7 @@ export default class Tank {
     }
 
     fire() {
+        this.AudioManager.playAudio('fire');
         if (!this.isRecoiling) {
             this.isRecoiling = true;
             this.recoilProgress = 0;

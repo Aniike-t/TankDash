@@ -1,7 +1,7 @@
 import randomNumberBetween from './utils/random.js';
 
 export default class EnemyTank {
-    constructor(x, y, width, height, speed, ctx, imageSrc, cannonSrc) {
+    constructor(x, y, width, height, speed, ctx, imageSrc, cannonSrc, AudioManager) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -42,6 +42,9 @@ export default class EnemyTank {
 
         this.shakeAmplitude = 0.55; // Maximum distance of shake
         this.shakeFrequency = 0.025;
+
+        //For Audio
+        this.AudioManager = AudioManager;
 
     }
 
@@ -98,10 +101,10 @@ export default class EnemyTank {
     }
 
     fire(playerTank) {
-
+        
         this.calculateFireAngle(playerTank);
         const radians = this.cannonAngle * Math.PI / 180;
-        
+        this.AudioManager.playAudio('fire');
         return new Bullet(
             this.x + this.width / 2,
             this.y + this.height / 2,

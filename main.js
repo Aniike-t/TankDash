@@ -7,6 +7,7 @@ import randomNumberBetween from './src/utils/random.js'
 import Explosion from './src/Explosion.js';
 import GameOver from './src/UI/gameOver.js';
 import ScoreDisplay from './src/UI/ScoreDisplay.js'; 
+import AudioManager from './src/sound/AudioManager.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -15,7 +16,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = 800; // Adjust based on your requirements
 canvas.height = 600; // Adjust based on your requirements
 
-
+//Load Images
 const bulletImage = new Image();
 bulletImage.src = './assets/bullet.png';
 bulletImage.onload = () => {
@@ -28,6 +29,11 @@ boomImage.onload = () => {
     console.log('Bullet image loaded');
     window.boomImageLoaded = true;
 };
+
+//Load Audio
+const audioManager = new AudioManager();
+audioManager.loadAudio('explosion', './assets/sounds/explosion.wav');
+audioManager.loadAudio('fire', './assets/sounds/cannonfire.wav');
 
 
 // Disable image smoothing to keep image quality
@@ -45,6 +51,13 @@ let bulletSpeed = 5;
 var maxLives = 3;
 let explosions = []; 
 
+audioManager.loadAudio('bg2Audio', './assets/sounds/bg2.ogg')
+    .then(() => {
+        audioManager.loopAudio('bg2Audio', 0.035);  // Play background audio at low volume
+    })
+    .catch((error) => {
+        console.error('Error loading or playing bg2Audio:', error);
+    });
 
 //UI Elements
 const heartsDisplay = new HeartsDisplay(ctx, 3, 'assets/heart.png', 20, 20, 30, 30);
@@ -60,7 +73,8 @@ let tank = new Tank(
     ctx, 
     'assets/tank1.png',
     'assets/tank1asset.png',
-    maxLives
+    maxLives,
+    audioManager
 );
 
 
@@ -131,7 +145,8 @@ function keyDownHandler(e) {
                         fireInfo.direction,
                         ctx,
                         bulletImage, // Use the preloaded image
-                        boomImage    
+                        boomImage,
+                        audioManager    
                     ));
                 }
                 break;
@@ -150,7 +165,8 @@ function spawnEnemies(numEnemies, ctx, playerTank) {
             0.5, // enemy tank speed
             ctx,
             'assets/tank1.png',
-            'assets/tank1asset.png'
+            'assets/tank1asset.png',
+            audioManager
         );
         enemies.push(enemy);
     }
@@ -187,7 +203,8 @@ function startGame() {
         ctx, 
         'assets/tank1.png',
         'assets/tank1asset.png',
-        maxLives
+        maxLives,
+        audioManager
     );
     enemies = [];
     bullets = [];
@@ -196,6 +213,7 @@ function startGame() {
     heartsDisplay.setHeartValue(maxLives);
     overheat.reset();
     gameOver.hide();
+    scoreDisplay.resetScore();
     
     // Restart the game loop
     draw();
@@ -226,6 +244,7 @@ function spawnEnemiesIfNeeded() {
 
 setInterval(spawnEnemiesIfNeeded, TimeLimitForEnemySpawn); 
 setInterval(() => scoreDisplay.increment(), 2000);
+
 //Invertcolors
 let invertColors = false;
 let inversionDuration = 0;
@@ -308,7 +327,8 @@ function draw() {
                     enemyFireInfo.direction,
                     ctx,
                     bulletImage, // Path to the enemy bullet image
-                    boomImage
+                    boomImage,
+                    audioManager
                 ));
                 enemy.lastFireTime = Date.now(); // Reset the fire time
             }

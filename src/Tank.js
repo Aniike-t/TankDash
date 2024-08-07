@@ -9,13 +9,13 @@ export default class Tank {
         this.ctx = ctx;
         this.angle = 0; // Tank's angle in degrees
         this.cannonAngle = 0; // Cannon's angle in degrees
-        this.image = new Image();
-        this.image.src = imageSrc;
+        this.image = imageSrc;
+        // this.image.src = imageSrc;
         this.movingForward = false;
         this.movingBackward = false;
         this.rotationSpeed = 5; // Degrees per frame
-        this.cannon1 = new Image();
-        this.cannon1.src = cannon1Src;
+        this.cannon1 = cannon1Src;
+        // this.cannon1.src = cannon1Src;
 
         // Recoil properties...
         this.recoilDistance = -10;

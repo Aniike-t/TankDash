@@ -22,7 +22,9 @@ export default class AudioManager {
         const audio = this.audioFiles[key];
         if (audio) {
             audio.currentTime = 0; 
-            audio.play();
+            audio.play().catch((error) => {
+                console.warn(`Audio playback failed: ${error.message}`);
+            });
         } else {
             console.warn(`Audio file for key '${key}' not loaded.`);
         }
@@ -53,7 +55,9 @@ export default class AudioManager {
             audio.loop = true;
             audio.volume = volume;
             audio.currentTime = 0;
-            audio.play();
+            audio.play().catch((error) => {
+                console.warn(`Audio playback failed: ${error.message}`);
+            });
         } else {
             console.warn(`Audio file for key '${key}' not loaded.`);
         }

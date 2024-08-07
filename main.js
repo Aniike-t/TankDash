@@ -8,27 +8,57 @@ import Explosion from './src/Explosion.js';
 import GameOver from './src/UI/gameOver.js';
 import ScoreDisplay from './src/UI/ScoreDisplay.js'; 
 import AudioManager from './src/sound/AudioManager.js';
+// import Grass from './src/grass/grass.js';
+import ColorInverter from './src/gameModes/colorInvertor.js';
+
+
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+
+
 
 // Set canvas size
 canvas.width = 800; // Adjust based on your requirements
 canvas.height = 600; // Adjust based on your requirements
 
 //Load Images
-const bulletImage = new Image();
+let bulletImage = new Image();
 bulletImage.src = './assets/bullet.png';
 bulletImage.onload = () => {
     console.log('Bullet image loaded');
     window.bulletImageLoaded = true;
 };
-const boomImage = new Image();
+let boomImage = new Image();
 boomImage.src = './assets/boom.png';
 boomImage.onload = () => {
     console.log('Bullet image loaded');
     window.boomImageLoaded = true;
 };
+let grassImage = new Image();
+grassImage.src = './assets/grass.gif';
+grassImage.onload = () => {
+    console.log('Grass image loaded');
+    window.grassImageLoaded = true;
+};
+let playerTankImage = new Image();
+playerTankImage.src = './assets/tank1.png';
+playerTankImage.onload = () => {
+    console.log('Player Tank image loaded');
+    window.playerTankImageLoaded = true;
+};
+let playerTankAssetImage = new Image();
+playerTankAssetImage.src = './assets/tank1asset.png';
+playerTankAssetImage.onload = () => {
+    console.log('player Tank Asset loaded');
+    window.playerTankAssetImageLoaded = true;
+};
+
+
+
+
+
+
 
 //Load Audio
 const audioManager = new AudioManager();
@@ -51,18 +81,27 @@ let bulletSpeed = 5;
 var maxLives = 3;
 let explosions = []; 
 
+//BG Audio 
 audioManager.loadAudio('bg2Audio', './assets/sounds/bg2.ogg')
     .then(() => {
-        audioManager.loopAudio('bg2Audio', 0.035);  // Play background audio at low volume
+        console.log('Audio loaded, ready to play on user interaction.');
     })
     .catch((error) => {
-        console.error('Error loading or playing bg2Audio:', error);
+        console.error('Error loading bg2Audio:', error);
     });
+const startAudioOnInteraction = () => {
+    audioManager.loopAudio('bg2Audio', 0.035);  // Play background audio at low volume
+    canvas.removeEventListener('pointerdown', startAudioOnInteraction);
+    canvas.removeEventListener('touchstart', startAudioOnInteraction);
+};
+canvas.addEventListener('pointerdown', startAudioOnInteraction);
+canvas.addEventListener('touchstart', startAudioOnInteraction);
 
 //UI Elements
 const heartsDisplay = new HeartsDisplay(ctx, 3, 'assets/heart.png', 20, 20, 30, 30);
 const overheat = new Overheat(ctx, canvas.width - 60, canvas.height - 150, 30, 100, 0.2);
 const scoreDisplay = new ScoreDisplay(ctx, 20, canvas.height - 40, 'assets/coin.png');
+// const grass = new Grass(ctx, canvas.width, canvas.height, grassImage, 50);
 
 let tank = new Tank(
     canvas.width / 2 - tankWidth / 2,
@@ -71,8 +110,8 @@ let tank = new Tank(
     tankHeight, 
     tankSpeed, 
     ctx, 
-    'assets/tank1.png',
-    'assets/tank1asset.png',
+    playerTankImage,
+    playerTankAssetImage,
     maxLives,
     audioManager
 );
@@ -85,6 +124,7 @@ let bullets = [];
 // Spawn enemies
 const numEnemies = 5;
 let enemies = spawnEnemies(numEnemies, ctx, tank);
+const colorInverter = new ColorInverter(ctx, 5000, 10000, 5000, 15000);
 
 function keyDownHandler(e) {
     switch(e.key) {
@@ -144,7 +184,7 @@ function keyDownHandler(e) {
                         bulletSpeed, 
                         fireInfo.direction,
                         ctx,
-                        bulletImage, // Use the preloaded image
+                        bulletImage, 
                         boomImage,
                         audioManager    
                     ));
@@ -153,26 +193,6 @@ function keyDownHandler(e) {
             }
     }
 }
-
-function spawnEnemies(numEnemies, ctx, playerTank) {
-    const enemies = [];
-    for (let i = 0; i < numEnemies; i++) {
-        const enemy = new EnemyTank(
-            Math.random() * ctx.canvas.width,
-            Math.random() * ctx.canvas.height,
-            65, // enemy tank width
-            55, // enemy tank height
-            0.5, // enemy tank speed
-            ctx,
-            'assets/tank1.png',
-            'assets/tank1asset.png',
-            audioManager
-        );
-        enemies.push(enemy);
-    }
-    return enemies;
-}
-
 function keyUpHandler(e) {
     switch(e.key) {
         case 'w':
@@ -186,10 +206,71 @@ function keyUpHandler(e) {
     }
 }
 
+function spawnEnemies(numEnemies, ctx, playerTank) {
+    const enemies = [];
+    for (let i = 0; i < numEnemies; i++) {
+        const enemy = new EnemyTank(
+            Math.random() * ctx.canvas.width,
+            Math.random() * ctx.canvas.height,
+            65, // enemy tank width
+            55, // enemy tank height
+            0.45, // enemy tank speed
+            ctx,
+            playerTankImage,
+            playerTankAssetImage,
+            audioManager
+        );
+        enemies.push(enemy);
+    }
+    return enemies;
+}
+
+function ClearAssets(){
+    bulletImage = null;
+    boomImage = null;
+    grassImage = null;
+    playerTankImage = null;
+    playerTankAssetImage = null;
+    bulletImage = new Image();
+    bulletImage.src = './assets/bullet.png';
+    bulletImage.onload = () => {
+        console.log('Bullet image loaded');
+        window.bulletImageLoaded = true;
+    };
+    boomImage = new Image();
+    boomImage.src = './assets/boom.png';
+    boomImage.onload = () => {
+        console.log('Bullet image loaded');
+        window.boomImageLoaded = true;
+    };
+    grassImage = new Image();
+    grassImage.src = './assets/grass.gif';
+    grassImage.onload = () => {
+        console.log('Grass image loaded');
+        window.grassImageLoaded = true;
+    };
+    playerTankImage = new Image();
+    playerTankImage.src = './assets/tank1.png';
+    playerTankImage.onload = () => {
+        console.log('Player Tank image loaded');
+        window.playerTankImageLoaded = true;
+    };
+    playerTankAssetImage = new Image();
+    playerTankAssetImage.src = './assets/tank1asset.png';
+    playerTankAssetImage.onload = () => {
+        console.log('player Tank Asset loaded');
+        window.playerTankAssetImageLoaded = true;
+    };
+}
+
 
 
 // Function declaration or using let/var if needed
 function startGame() {
+
+    ClearAssets();
+
+    tank = null;
     tankSpeed = 2;
     bulletWidth = 50;
     bulletHeight = 50;
@@ -201,8 +282,8 @@ function startGame() {
         tankHeight, 
         tankSpeed, 
         ctx, 
-        'assets/tank1.png',
-        'assets/tank1asset.png',
+        playerTankImage,
+        playerTankAssetImage,
         maxLives,
         audioManager
     );
@@ -215,9 +296,11 @@ function startGame() {
     gameOver.hide();
     scoreDisplay.resetScore();
     
-    // Restart the game loop
+    // colorInverter.resetInversion();
+
     draw();
 }
+
 
 // Initialize GameOver with a reference to startGame
 const gameOver = new GameOver(ctx, canvas, startGame);
@@ -227,6 +310,8 @@ var UpperTimeLimitForEnemySpawn = 6000;
 var UpperTimeLimitForEnemySpawn = 4000;
 var TimeLimitForEnemySpawn = randomNumberBetween(UpperTimeLimitForEnemySpawn,UpperTimeLimitForEnemySpawn);
 var EnemyCountFlag = false;
+
+
 function spawnEnemiesIfNeeded() {
     if(EnemyCountFlag){
         const maxEnemies = 6;
@@ -245,47 +330,15 @@ function spawnEnemiesIfNeeded() {
 setInterval(spawnEnemiesIfNeeded, TimeLimitForEnemySpawn); 
 setInterval(() => scoreDisplay.increment(), 2000);
 
-//Invertcolors
-let invertColors = false;
-let inversionDuration = 0;
-let inversionCooldown = 0;
-
-function startInversion() {
-    if (inversionCooldown <= 0) {
-        invertColors = true;
-        inversionDuration = Math.random() * 5000 + 5000; // Random duration between 5-10 seconds
-        inversionCooldown = Math.random() * 15000 + 5000; // Cool-down period between 5-15 seconds
-    }
-}
-
-function updateInversion() {
-    if (invertColors) {
-        inversionDuration -= 16.67; // Approximately 1 frame duration at 60fps
-        if (inversionDuration <= 0) {
-            invertColors = false;
-        }
-    } else {
-        inversionCooldown -= 16.67;
-        if (inversionCooldown <= 0) {
-            startInversion();
-        }
-    }
-}
-
 
 // Call the `startGame` function to start the game loop
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // colorInverter.applyInversion();
+    // grass.draw();
     tank.draw();
     tank.move(enemies);
 
-    // Apply color inversion if active
-    if (invertColors) {
-        ctx.save();
-        ctx.globalCompositeOperation = 'difference';
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
 
     enemies = enemies.filter(enemy => !enemy.destroyed);
     if(enemies.length < 5){
@@ -360,7 +413,7 @@ function draw() {
     if(tank.heart == 0){
         endGame(); // Call the function to end the game and show the game over screen
     }
-
+    
     // Draw and manage explosions
     explosions = explosions.filter(explosion => explosion.draw());
 
@@ -369,16 +422,12 @@ function draw() {
     overheat.draw();
     heartsDisplay.draw();
 
-    
-
     scoreDisplay.draw(); // Draw the score display
     gameOver.draw(); // Ensure this is called to draw the game over screen if needed
-    if (invertColors) {
-        ctx.restore();
-    }
 
-    // Update inversion state
-    updateInversion();
+    // colorInverter.updateInversion();
+    // colorInverter.restoreInversion();
+
     requestAnimationFrame(draw);
 
 }
@@ -387,8 +436,10 @@ function draw() {
 
 
 function endGame() {
+    tank = null;
     gameOver.show(); // Show the game over screen
     cancelAnimationFrame(draw); // Stop the game loop
+    invertColors = false;
 }
 
 document.addEventListener('keydown', keyDownHandler);

@@ -8,19 +8,20 @@ export default class EnemyTank {
         this.height = height;
         this.speed = speed*0.1;
         this.ctx = ctx;
-        this.image = new Image();
-        this.image.src = imageSrc;
-        this.imageLoaded = false; // Flag to track if the image has loaded
-        this.image.onload = () => {
-            this.imageLoaded = true;
-        };
 
-        this.cannon = new Image();
-        this.cannon.src = cannonSrc;
-        this.cannonLoaded = false; // Flag to track if the cannon image has loaded
-        this.cannon.onload = () => {
-            this.cannonLoaded = true;
-        };
+        this.image = imageSrc;
+
+        // this.imageLoaded = false; // Flag to track if the image has loaded
+        // this.image.onload = () => {
+        //     this.imageLoaded = true;
+        // };
+
+        this.cannon = cannonSrc;
+        // this.cannon.src = cannonSrc;
+        // this.cannonLoaded = false; // Flag to track if the cannon image has loaded
+        // this.cannon.onload = () => {
+        //     this.cannonLoaded = true;
+        // };
 
         this.targetX = Math.random() * ctx.canvas.width;
         this.targetY = Math.random() * ctx.canvas.height;
